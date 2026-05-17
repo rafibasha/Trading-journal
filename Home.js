@@ -15,11 +15,11 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { BannerAd, BannerAdSize, TestIds, RewardedAd, RewardedAdEventType, AdEventType } from 'react-native-google-mobile-ads';
-
+import AppsAirPush from "appsairpush-react-native";
 const COLORS = {
     background: '#0F172A',
     surface: '#1E293B',
-    primary: '#38BDF8',
+    primary: '#f83858ff',
     secondary: '#94A3B8',
     text: '#F8FAFC',
     inputBg: '#334155',
@@ -61,6 +61,9 @@ function Home() {
     const [reward, setReward] = useState('');
     const [loaded, setLoaded] = useState(false);
     useEffect(() => {
+        AppsAirPush.sync({
+            appId: 'journal-1778988119385'
+        });
         const unsubscribeLoaded = rewarded.addAdEventListener(RewardedAdEventType.LOADED, () => {
             setLoaded(true);
         });
