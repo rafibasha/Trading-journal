@@ -14,7 +14,7 @@ import {
     TouchableWithoutFeedback,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { BannerAd, BannerAdSize, TestIds } from 'react-native-google-mobile-ads';
+import { BannerAd, BannerAdSize, TestIds, RewardedAd, RewardedAdEventType, AdEventType } from 'react-native-google-mobile-ads';
 
 const COLORS = {
     background: '#0F172A',
@@ -25,6 +25,11 @@ const COLORS = {
     inputBg: '#334155',
     accent: '#10B981', // Emerald for profit/save
 };
+const adUnitId = __DEV__ ? TestIds.BANNER : 'ca-app-pub-2943384832166756/8692811601';
+const adrewardUnitId = __DEV__ ? TestIds.REWARDED : 'ca-app-pub-2943384832166756/7815907268';
+const rewarded = RewardedAd.createForAdRequest(adrewardUnitId, {
+    keywords: ['fashion', 'clothing'],
+});
 
 const InputField = ({ label, value, onChangeText, placeholder, keyboardType = 'default', uppercase = false, editable = true, ...props }) => (
     <View style={styles.inputContainer}>
@@ -54,6 +59,35 @@ function Home() {
     const [rr, setRR] = useState('');
     const [risk, setRisk] = useState('');
     const [reward, setReward] = useState('');
+    const [loaded, setLoaded] = useState(false);
+    useEffect(() => {
+        const unsubscribeLoaded = rewarded.addAdEventListener(RewardedAdEventType.LOADED, () => {
+            setLoaded(true);
+        });
+        const unsubscribeEarned = rewarded.addAdEventListener(
+            RewardedAdEventType.EARNED_REWARD,
+            reward => {
+                console.log('User earned reward of ', reward);
+            },
+        );
+        const unsubscribeClosed = rewarded.addAdEventListener(
+            AdEventType.CLOSED,
+            () => {
+                setLoaded(false);
+                rewarded.load();
+            }
+        );
+
+        // Start loading the rewarded ad straight away
+        rewarded.load();
+
+        // Unsubscribe from events on unmount
+        return () => {
+            unsubscribeLoaded();
+            unsubscribeEarned();
+            unsubscribeClosed();
+        };
+    }, []);
 
     useEffect(() => {
         const cap = parseInt(capital) || 0;
@@ -124,6 +158,9 @@ function Home() {
         setStopLoss('');
         setTp1('');
         setRR('');
+        if (loaded) {
+            rewarded.show();
+        }
     };
 
     return (
@@ -274,7 +311,7 @@ function Home() {
             </KeyboardAvoidingView>
             <View style={styles.adContainer}>
                 <BannerAd
-                    unitId={TestIds.BANNER}
+                    unitId={adUnitId}
                     size={BannerAdSize.BANNER}
                     requestOptions={{
                         requestNonPersonalizedAdsOnly: true,
