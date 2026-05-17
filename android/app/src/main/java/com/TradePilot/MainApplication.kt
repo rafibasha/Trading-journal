@@ -1,4 +1,4 @@
-package com.journal
+package com.TradePilot
 
 import android.app.Application
 import com.facebook.react.PackageList

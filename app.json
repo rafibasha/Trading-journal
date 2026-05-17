@@ -1,8 +1,8 @@
 {
-  "name": "journal",
-  "displayName": "journal",
+  "name": "TradePilot",
+  "displayName": "TradePilot",
   "react-native-google-mobile-ads": {
-    "android_app_id": "ca-app-pub-2943384832166756~1175459835",
-    "ios_app_id": "ca-app-pub-3940256099942544~1458002511"
+    "android_app_id": "ca-app-pub-2943384832166756~7513489081",
+    "ios_app_id": "ca-app-pub-2943384832166756~9504998696"
   }
 }

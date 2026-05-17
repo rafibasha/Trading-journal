@@ -25,8 +25,8 @@ const COLORS = {
     inputBg: '#334155',
     accent: '#10B981', // Emerald for profit/save
 };
-const adUnitId = __DEV__ ? TestIds.BANNER : 'ca-app-pub-2943384832166756/8692811601';
-const adrewardUnitId = __DEV__ ? TestIds.REWARDED : 'ca-app-pub-2943384832166756/7815907268';
+const adUnitId = __DEV__ ? TestIds.BANNER : 'ca-app-pub-2943384832166756/4887325747';
+const adrewardUnitId = __DEV__ ? TestIds.REWARDED : 'ca-app-pub-2943384832166756/6156780629';
 const rewarded = RewardedAd.createForAdRequest(adrewardUnitId, {
     keywords: ['fashion', 'clothing'],
 });
@@ -389,10 +389,10 @@ const styles = StyleSheet.create({
         paddingBottom: 8,
     },
     label: {
-        fontSize: 12,
+        fontSize: 11,
         fontWeight: '700',
         color: COLORS.primary,
-        width: 100, // Fixed width for labels to align inputs
+        width: 80, // Decreased width for labels to give inputs more space
     },
     uppercaseLabel: {
         letterSpacing: 1,
