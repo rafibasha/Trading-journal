@@ -19,7 +19,7 @@ import AppsAirPush from "appsairpush-react-native";
 const COLORS = {
     background: '#0F172A',
     surface: '#1E293B',
-    primary: '#f83858ff',
+    primary: '#3888f8ff',
     secondary: '#94A3B8',
     text: '#F8FAFC',
     inputBg: '#334155',
@@ -49,11 +49,12 @@ const InputField = ({ label, value, onChangeText, placeholder, keyboardType = 'd
 
 function Home() {
     const [capital, setCapital] = useState('50000');
-    const [divideValue, setDivideValue] = useState('4');
-    const [tradeCapital, setTradeCapital] = useState('12500');
+    const [divideValue, setDivideValue] = useState('5');
+    const [tradeCapital, setTradeCapital] = useState('10000');
     const [entry, setEntry] = useState('');
     const [stopLoss, setStopLoss] = useState('');
     const [losspertrade, setLosspertrade] = useState('0');
+    const [profitpertrade, setProfitpertrade] = useState('0');
     const [tp1, setTp1] = useState('');
     const [quantity, setQuantity] = useState('');
     const [rr, setRR] = useState('');
@@ -99,13 +100,14 @@ function Home() {
 
         setTradeCapital(tc.toString());
 
-        const riskPerTrade = 500;
+        const riskPerTrade = 300;
         const entryPrice = parseFloat(entry);
         const slPrice = parseFloat(stopLoss);
         const tpPrice = parseFloat(tp1);
 
         if (!isNaN(entryPrice) && !isNaN(slPrice)) {
             const riskPerShare = Math.abs(entryPrice - slPrice);
+            let finalQty = 0;
 
             if (riskPerShare > 0) {
                 // Calculate quantity based on 500 total risk
@@ -117,7 +119,7 @@ function Home() {
                     calculatedQuantity = maxQuantityFromCapital;
                 }
 
-                const finalQty = Math.floor(calculatedQuantity);
+                finalQty = Math.floor(calculatedQuantity);
                 setQuantity(finalQty.toString());
 
                 // Update loss per trade based on final quantity and risk per share
@@ -132,6 +134,7 @@ function Home() {
             if (!isNaN(tpPrice)) {
                 const rewardVal = Math.abs(tpPrice - entryPrice);
                 setReward(rewardVal.toFixed(2));
+                setProfitpertrade((finalQty * rewardVal).toFixed(2));
                 if (riskPerShare > 0) {
                     setRR(`1:${(rewardVal / riskPerShare).toFixed(2)}`);
                 } else {
@@ -141,10 +144,12 @@ function Home() {
             else if (!isNaN(stopLoss)) {
 
                 setRR('1:0');
+                setProfitpertrade('0.00');
             }
             else {
                 setReward('');
                 setRR('0:0');
+                setProfitpertrade('0.00');
             }
         } else {
             setRisk('');
@@ -152,19 +157,25 @@ function Home() {
             setQuantity('');
             setRR('0:0');
             setLosspertrade('0.00');
+            setProfitpertrade('0.00');
         }
     }, [capital, divideValue, entry, stopLoss, tp1]);
 
     const handleReset = () => {
-        setDivideValue('4');
+        setDivideValue('5');
         setEntry('');
         setStopLoss('');
         setTp1('');
         setRR('');
+        setProfitpertrade('0');
         if (loaded) {
             rewarded.show();
         }
     };
+
+    const qtyInt = parseInt(quantity) || 0;
+    const qtyHalf1 = Math.floor(qtyInt / 2);
+    const qtyHalf2 = qtyInt - qtyHalf1;
 
     return (
         <SafeAreaView style={styles.container}>
@@ -185,9 +196,18 @@ function Home() {
                             </TouchableOpacity>
                         </View>
                     </View>
-                    <View style={styles.resultCard}>
-                        <Text style={styles.resultLabel}>QUANTITY</Text>
-                        <Text style={styles.resultValue}>{quantity || '0'}</Text>
+                    <View style={styles.resultCardSplit}>
+                        <View style={styles.resultColumn}>
+                            <Text style={styles.resultLabel}>QTY (50%)</Text>
+                            <Text style={styles.resultValueHalf}>{qtyHalf1}</Text>
+                        </View>
+                        <View style={styles.verticalDivider} />
+                        <View style={styles.resultColumn}>
+                            <Text style={styles.resultLabel}>Loss per trade</Text>
+                            <Text style={styles.resultValueHalf2}>{losspertrade}</Text>
+                            <Text style={styles.resultLabel}>Profit per trade</Text>
+                            <Text style={styles.resultValueHalf2}>{profitpertrade}</Text>
+                        </View>
                     </View>
                     <View style={styles.card}>
                         <View style={styles.row}>
@@ -234,10 +254,11 @@ function Home() {
                             </View>
                             <View style={[styles.halfWidth, { marginLeft: 12 }]}>
                                 <InputField
-                                    label="R:R"
-                                    value={rr}
-                                    placeholder="1:2"
-                                    editable={false}
+                                    label="ENTRY"
+                                    value={entry}
+                                    onChangeText={setEntry}
+                                    placeholder="Price"
+                                    keyboardType="numeric"
                                     uppercase
                                 />
                             </View>
@@ -253,28 +274,7 @@ function Home() {
                                 />
                             </View>
                             <View style={[styles.halfWidth, { marginLeft: 12 }]}>
-                                <InputField
-                                    label="ENTRY"
-                                    value={entry}
-                                    onChangeText={setEntry}
-                                    placeholder="Price"
-                                    keyboardType="numeric"
-                                    uppercase
-                                />
-                            </View>
-                        </View>
-                        <View style={styles.row}>
 
-                            <View style={styles.halfWidth}>
-                                <InputField
-                                    label="Reward"
-                                    value={reward}
-                                    placeholder="Price"
-                                    editable={false}
-                                    uppercase
-                                />
-                            </View>
-                            <View style={[styles.halfWidth, { marginLeft: 12 }]}>
                                 <InputField
                                     label="SL"
                                     value={stopLoss}
@@ -288,15 +288,15 @@ function Home() {
                         <View style={styles.row}>
                             <View style={styles.halfWidth}>
                                 <InputField
-                                    label="Loss per trade"
-                                    value={losspertrade}
+                                    label="Reward"
+                                    value={reward}
                                     placeholder="Price"
-                                    uppercase
                                     editable={false}
+                                    uppercase
                                 />
                             </View>
-
                             <View style={[styles.halfWidth, { marginLeft: 12 }]}>
+
                                 <InputField
                                     label="TP1"
                                     value={tp1}
@@ -307,9 +307,21 @@ function Home() {
                                 />
                             </View>
                         </View>
+                        <View style={styles.row}>
+                            <View style={styles.halfWidth}>
+                                <InputField
+                                    label="R:R"
+                                    value={rr}
+                                    placeholder="1:2"
+                                    editable={false}
+                                    uppercase
+                                />
+
+                            </View>
+                            <View style={[styles.halfWidth, { marginLeft: 12 }]} />
+                        </View>
 
                     </View>
-
                 </ScrollView>
             </KeyboardAvoidingView>
             <View style={styles.adContainer}>
@@ -415,13 +427,16 @@ const styles = StyleSheet.create({
         height: 100,
         textAlignVertical: 'top',
     },
-    resultCard: {
+    resultCardSplit: {
+        flexDirection: 'row',
         backgroundColor: COLORS.surface,
         borderRadius: 24,
-        padding: 32,
+        paddingVertical: 24,
+        paddingHorizontal: 16,
         marginTop: 20,
         marginBottom: 24,
         alignItems: 'center',
+        justifyContent: 'space-between',
         borderWidth: 1,
         borderColor: 'rgba(56, 189, 248, 0.3)',
         shadowColor: COLORS.primary,
@@ -429,6 +444,16 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.2,
         shadowRadius: 12,
         elevation: 8,
+    },
+    resultColumn: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    verticalDivider: {
+        width: 1,
+        height: '70%',
+        backgroundColor: 'rgba(255, 255, 255, 0.15)',
     },
     resultLabel: {
         color: COLORS.secondary,
@@ -438,13 +463,18 @@ const styles = StyleSheet.create({
         marginBottom: 12,
         textTransform: 'uppercase',
     },
-    resultValue: {
+    resultValueHalf: {
         color: COLORS.primary,
-        fontSize: 56,
+        fontSize: 38,
         fontWeight: '900',
         textShadowColor: 'rgba(56, 189, 248, 0.5)',
         textShadowOffset: { width: 0, height: 0 },
         textShadowRadius: 10,
+    },
+    resultValueHalf2: {
+        color: COLORS.primary,
+        fontSize: 18,
+        fontWeight: '700',
     },
     modalOverlay: {
         flex: 1,
