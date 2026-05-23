@@ -100,7 +100,7 @@ function Home() {
 
         setTradeCapital(tc.toString());
 
-        const riskPerTrade = 200;
+        const riskPerTrade = 300;
         const entryPrice = parseFloat(entry);
         const slPrice = parseFloat(stopLoss);
         const tpPrice = parseFloat(tp1);
