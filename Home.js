@@ -175,7 +175,6 @@ function Home() {
 
     const qtyInt = parseInt(quantity) || 0;
     const qtyHalf1 = Math.floor(qtyInt / 2);
-    const qtyHalf2 = qtyInt - qtyHalf1;
 
     return (
         <SafeAreaView style={styles.container}>
@@ -198,8 +197,8 @@ function Home() {
                     </View>
                     <View style={styles.resultCardSplit}>
                         <View style={styles.resultColumn}>
-                            <Text style={styles.resultLabel}>QTY (50%)</Text>
-                            <Text style={styles.resultValueHalf}>{qtyHalf1}</Text>
+                            <Text style={styles.resultLabel}>QTY </Text>
+                            <Text style={styles.resultValueHalf}>{qtyInt}</Text>
                         </View>
                         <View style={styles.verticalDivider} />
                         <View style={styles.resultColumn}>
